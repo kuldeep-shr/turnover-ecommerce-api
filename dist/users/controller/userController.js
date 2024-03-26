@@ -67,6 +67,9 @@ const loginUser = async (req, res) => {
         };
         return apiResponse_1.default.result(res, "user login successfully", [sendData], http_status_codes_1.default.OK);
     }
+    else {
+        return apiResponse_1.default.result(res, "invalid credentials", [], http_status_codes_1.default.BAD_REQUEST);
+    }
     // }
 };
 exports.loginUser = loginUser;
@@ -99,7 +102,6 @@ const createUser = async (req, res) => {
         return apiResponse_1.default.result(res, "user created successfully", [sendData], http_status_codes_1.default.CREATED);
     }
     catch (error) {
-        console.log("err", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "something went wrong");
     }
 };

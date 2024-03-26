@@ -18,47 +18,58 @@ const initialRoute = async (req: Request, res: Response) => {
   );
 };
 const loginUser = async (req: Request, res: Response) => {
-  // try {
-  const { email, password } = req.body;
-  const user: any = await findUser({ email: email });
-  console.log("user details for login", user);
-  if (user.data.length == 0) {
+  try {
+    const { email, password } = req.body;
+    const user: any = await findUser({ email: email });
+    if (user.data.length == 0) {
+      return apiResponse.error(
+        res,
+        httpStatusCodes.BAD_REQUEST,
+        "user is not registered with us"
+      );
+    }
+    const isPasswordMatchOrNot: boolean = await verifyPassword({
+      id: user.data[0].id,
+      email: email,
+      inputPassword: password,
+      hashPassword: user.data[0].password,
+    });
+    if (isPasswordMatchOrNot) {
+      // password match
+      const generatingJWTToken: string = await generateToken({
+        id: user.data[0].id,
+        user: {
+          name: user.data[0].name,
+          email: email,
+        },
+        secretKey: process.env.SECRET_KEY,
+      });
+
+      const sendData: any = {
+        email: email,
+        token: generatingJWTToken,
+      };
+      return apiResponse.result(
+        res,
+        "user login successfully",
+        [sendData],
+        httpStatusCodes.OK
+      );
+    } else {
+      return apiResponse.result(
+        res,
+        "invalid credentials",
+        [],
+        httpStatusCodes.BAD_REQUEST
+      );
+    }
+  } catch (error) {
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
-      "user is not registered with us"
+      "something went wrong"
     );
   }
-  const isPasswordMatchOrNot: boolean = await verifyPassword({
-    id: user.data[0].id,
-    email: email,
-    inputPassword: password,
-    hashPassword: user.data[0].password,
-  });
-  if (isPasswordMatchOrNot) {
-    // password match
-    const generatingJWTToken: string = await generateToken({
-      id: user.data[0].id,
-      user: {
-        name: user.data[0].name,
-        email: email,
-      },
-      secretKey: process.env.SECRET_KEY,
-    });
-
-    const sendData: any = {
-      email: email,
-      token: generatingJWTToken,
-    };
-    return apiResponse.result(
-      res,
-      "user login successfully",
-      [sendData],
-      httpStatusCodes.OK
-    );
-  }
-
-  // }
 };
 
 const createUser = async (req: Request, res: Response) => {

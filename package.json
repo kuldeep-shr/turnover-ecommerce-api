@@ -1,0 +1,60 @@
+{
+  "name": "turnover",
+  "version": "1.0.0",
+  "main": "app.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@types/body-parser": "^1.19.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.17",
+    "@types/node": "^18.16.6",
+    "@types/nodemailer": "^6.4.14",
+    "@types/pg": "^8.11.4",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.1.1",
+    "express": "^4.18.2",
+    "http-status-codes": "^2.3.0",
+    "joi": "^17.10.2",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
+    "nodemailer": "^6.9.13",
+    "pg": "^8.11.3",
+    "postgres": "^3.4.4"
+  },
+  "scripts": {
+    "build": "tsc",
+    "v-build": "rimraf dist && tsc",
+    "ts.check": "tsc --project tsconfig.json",
+    "add-build": "git add dist",
+    "prebuild": "rimraf dist/",
+    "start": "node ./dist/app.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'npm run build && npm run start'",
+    "create-table": "ts-node ./src/DATABASE/create_database.ts",
+    "sample-data": "ts-node ./src/DATABASE/sampleData.ts"
+  },
+  "pre-commit": [
+    "ts.check",
+    "v-build",
+    "add-build"
+  ],
+  "keywords": [
+    "turnover",
+    "typescript",
+    "node",
+    "mysql",
+    "express"
+  ],
+  "author": "kuldeep-shr",
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.3",
+    "concurrently": "^8.1.0",
+    "nodemon": "^2.0.22",
+    "pre-commit": "^1.2.2",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0"
+  }
+}

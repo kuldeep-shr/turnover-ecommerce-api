@@ -1,0 +1,67 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.verifyEmailSchemaValidation = exports.loginSchemaValidation = exports.registerSchemaValidation = void 0;
+const joi_1 = __importDefault(require("joi"));
+const http_status_codes_1 = __importDefault(require("http-status-codes"));
+const apiResponse_1 = __importDefault(require("../utils/apiResponse"));
+const registerSchema = joi_1.default.object({
+    name: joi_1.default.string().required().error(new Error("please enter the name")),
+    email: joi_1.default.string()
+        .email()
+        .required()
+        .error(new Error("please enter the valid email")),
+    password: joi_1.default.string()
+        .min(5)
+        .required()
+        .error(new Error("please enter the valid password of minimum 5 words")),
+});
+const registerSchemaValidation = (req, res, next) => {
+    const data = req.body;
+    const { error } = registerSchema.validate(data);
+    if (error) {
+        apiResponse_1.default.error(res, http_status_codes_1.default.UNPROCESSABLE_ENTITY, error.message);
+        return null;
+    }
+    next();
+};
+exports.registerSchemaValidation = registerSchemaValidation;
+const loginSchema = joi_1.default.object({
+    email: joi_1.default.string()
+        .email()
+        .required()
+        .error(new Error("please enter the valid email")),
+    password: joi_1.default.string()
+        .required()
+        .error(new Error("please enter the valid password of minimum 5 words")),
+});
+const loginSchemaValidation = (req, res, next) => {
+    const data = req.body;
+    const { error } = loginSchema.validate(data);
+    if (error) {
+        apiResponse_1.default.error(res, http_status_codes_1.default.UNPROCESSABLE_ENTITY, error.message);
+        return null;
+    }
+    next();
+};
+exports.loginSchemaValidation = loginSchemaValidation;
+const verifyEmailSchema = joi_1.default.object({
+    code: joi_1.default.number()
+        .min(11111111)
+        .max(99999999)
+        .required()
+        .error(new Error("please enter the valid email verification  of eight digits")),
+});
+const verifyEmailSchemaValidation = (req, res, next) => {
+    const data = req.body;
+    const { error } = verifyEmailSchema.validate(data);
+    if (error) {
+        apiResponse_1.default.error(res, http_status_codes_1.default.UNPROCESSABLE_ENTITY, error.message);
+        return null;
+    }
+    next();
+};
+exports.verifyEmailSchemaValidation = verifyEmailSchemaValidation;
+//# sourceMappingURL=User.js.map

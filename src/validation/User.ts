@@ -77,8 +77,69 @@ const verifyEmailSchemaValidation = (
   next();
 };
 
+const updateCategoriesSchema = Joi.array()
+  .items(
+    Joi.object({
+      category_id: Joi.number()
+        .greater(0)
+        .required()
+        .error(new Error("please enter the valid category id")),
+      is_selected: Joi.boolean()
+        .required()
+        .error(
+          new Error(
+            "please check the marked/unmarked category or check the parameter is_selected"
+          )
+        ),
+    })
+  )
+  .min(1)
+  .required()
+  .error(new Error("please atleast select the single category"));
+
+const updateCategoriesSchemaValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const data = req.body;
+  const { error } = updateCategoriesSchema.validate(data);
+  if (error) {
+    apiResponse.error(res, httpStatusCodes.UNPROCESSABLE_ENTITY, error.message);
+    return null;
+  }
+  next();
+};
+
+const categoriesListSchema = Joi.object({
+  page: Joi.number()
+    .greater(-1)
+    .required()
+    .error(new Error("please enter the valid page")),
+  pageSize: Joi.number()
+    .greater(0)
+    .required()
+    .error(new Error("please enter the valid page size")),
+});
+
+const categoriesListSchemaValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const data = req.body;
+  const { error } = categoriesListSchema.validate(data);
+  if (error) {
+    apiResponse.error(res, httpStatusCodes.UNPROCESSABLE_ENTITY, error.message);
+    return null;
+  }
+  next();
+};
+
 export {
   registerSchemaValidation,
   loginSchemaValidation,
   verifyEmailSchemaValidation,
+  updateCategoriesSchemaValidation,
+  categoriesListSchemaValidation,
 };

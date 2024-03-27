@@ -9,6 +9,8 @@ import {
   registerSchemaValidation,
   loginSchemaValidation,
   verifyEmailSchemaValidation,
+  updateCategoriesSchemaValidation,
+  categoriesListSchemaValidation,
 } from "../validation/User";
 
 //controllers
@@ -17,6 +19,9 @@ import {
   createUser,
   verifyEmailCode,
   loginUser,
+  updateSelectedCategories,
+  categoriesList,
+  pagination,
 } from "../users/controller/userController";
 
 router.get("/", initialRoute);
@@ -29,5 +34,20 @@ router.post(
   verifyToken,
   verifyEmailCode
 );
+router.post(
+  "/update-categories",
+  updateCategoriesSchemaValidation,
+  verifyToken,
+  updateSelectedCategories
+);
+
+router.post(
+  "/categories",
+  categoriesListSchemaValidation,
+  verifyToken,
+  categoriesList
+);
+
+router.get("/categories-count", verifyToken, pagination);
 
 export const allRoutes = router;

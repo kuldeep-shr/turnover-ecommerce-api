@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyEmailCode = exports.loginUser = exports.createUser = exports.initialRoute = void 0;
+exports.pagination = exports.categoriesList = exports.updateSelectedCategories = exports.verifyEmailCode = exports.loginUser = exports.createUser = exports.initialRoute = void 0;
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const apiResponse_1 = __importDefault(require("../../utils/apiResponse"));
 const User_1 = require("../model/User");
@@ -38,49 +38,51 @@ const initialRoute = async (req, res) => {
 };
 exports.initialRoute = initialRoute;
 const loginUser = async (req, res) => {
-    // try {
-    const { email, password } = req.body;
-    const user = await (0, User_1.findUser)({ email: email });
-    console.log("user details for login", user);
-    if (user.data.length == 0) {
-        return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "user is not registered with us");
-    }
-    const isPasswordMatchOrNot = await (0, commonMiddlewares_1.verifyPassword)({
-        id: user.data[0].id,
-        email: email,
-        inputPassword: password,
-        hashPassword: user.data[0].password,
-    });
-    if (isPasswordMatchOrNot) {
-        // password match
-        const generatingJWTToken = await (0, commonMiddlewares_1.generateToken)({
+    try {
+        const { email, password } = req.body;
+        const user = await (0, User_1.findUserModel)({ email: email });
+        if (user.data.length == 0) {
+            return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "user is not registered with us");
+        }
+        const isPasswordMatchOrNot = await (0, commonMiddlewares_1.verifyPassword)({
             id: user.data[0].id,
-            user: {
-                name: user.data[0].name,
-                email: email,
-            },
-            secretKey: process.env.SECRET_KEY,
-        });
-        const sendData = {
             email: email,
-            token: generatingJWTToken,
-        };
-        return apiResponse_1.default.result(res, "user login successfully", [sendData], http_status_codes_1.default.OK);
+            inputPassword: password,
+            hashPassword: user.data[0].password,
+        });
+        if (isPasswordMatchOrNot) {
+            // password match
+            const generatingJWTToken = await (0, commonMiddlewares_1.generateToken)({
+                id: user.data[0].id,
+                user: {
+                    name: user.data[0].name,
+                    email: email,
+                },
+                secretKey: process.env.SECRET_KEY,
+            });
+            const sendData = {
+                email: email,
+                token: generatingJWTToken,
+            };
+            return apiResponse_1.default.result(res, "user login successfully", [sendData], http_status_codes_1.default.OK);
+        }
+        else {
+            return apiResponse_1.default.result(res, "invalid credentials", [], http_status_codes_1.default.BAD_REQUEST);
+        }
     }
-    else {
-        return apiResponse_1.default.result(res, "invalid credentials", [], http_status_codes_1.default.BAD_REQUEST);
+    catch (error) {
+        return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
-    // }
 };
 exports.loginUser = loginUser;
 const createUser = async (req, res) => {
     try {
         const { name, email, password, address } = req.body;
-        const user = await (0, User_1.findUser)({ email: email });
+        const user = await (0, User_1.findUserModel)({ email: email });
         if (user.data.length > 0) {
             return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "user already exists");
         }
-        const addUserData = await (0, User_1.addUser)({
+        const addUserData = await (0, User_1.addUserModel)({
             name: name,
             email: email,
             password: password,
@@ -102,7 +104,7 @@ const createUser = async (req, res) => {
         return apiResponse_1.default.result(res, "user created successfully", [sendData], http_status_codes_1.default.CREATED);
     }
     catch (error) {
-        return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "something went wrong");
+        return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };
 exports.createUser = createUser;
@@ -117,4 +119,60 @@ const verifyEmailCode = async (req, res) => {
     }
 };
 exports.verifyEmailCode = verifyEmailCode;
+const categoriesList = async (req, res) => {
+    try {
+        const page = req.body.page || 1;
+        const pageSize = req.body.pageSize || 6;
+        const user_id = req.body.user.id;
+        const offset = (page - 1) * pageSize;
+        const categoriesList = await (0, User_1.categoriesListModel)({
+            user_id: user_id,
+            page: offset,
+            pageSize: pageSize,
+        });
+        if (categoriesList.data.length > 0) {
+            return apiResponse_1.default.result(res, "categories list", categoriesList.data, http_status_codes_1.default.OK);
+        }
+        else {
+            return apiResponse_1.default.result(res, "no categories list found", [], http_status_codes_1.default.BAD_REQUEST);
+        }
+    }
+    catch (error) {
+        return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
+    }
+};
+exports.categoriesList = categoriesList;
+const updateSelectedCategories = async (req, res) => {
+    try {
+        let apiPayload = req.body;
+        apiPayload.forEach((item) => {
+            item.user_id = req.body.user.id;
+        });
+        apiPayload = apiPayload.filter((item) => !item.user);
+        const updatingData = await (0, User_1.updateSelectedCategoriesModel)(apiPayload);
+        if (updatingData.statusCode == 201) {
+            return apiResponse_1.default.result(res, "categories updated successfully", [], http_status_codes_1.default.OK);
+        }
+        else {
+            return apiResponse_1.default.result(res, "something went wrong, while updating categories", [], http_status_codes_1.default.BAD_REQUEST);
+        }
+    }
+    catch (error) {
+        return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
+    }
+};
+exports.updateSelectedCategories = updateSelectedCategories;
+const pagination = async (req, res) => {
+    try {
+        const getCount = await (0, User_1.categoriesCountModel)();
+        const returnData = {
+            count: parseInt(getCount.data),
+        };
+        return apiResponse_1.default.result(res, "categories count", [returnData], http_status_codes_1.default.OK);
+    }
+    catch (error) {
+        return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
+    }
+};
+exports.pagination = pagination;
 //# sourceMappingURL=userController.js.map

@@ -16,5 +16,8 @@ router.get("/", userController_1.initialRoute);
 router.post("/signup", User_1.registerSchemaValidation, userController_1.createUser);
 router.post("/signin", User_1.loginSchemaValidation, userController_1.loginUser);
 router.post("/verify-email", User_1.verifyEmailSchemaValidation, commonMiddlewares_1.verifyToken, userController_1.verifyEmailCode);
+router.post("/update-categories", User_1.updateCategoriesSchemaValidation, commonMiddlewares_1.verifyToken, userController_1.updateSelectedCategories);
+router.post("/categories", User_1.categoriesListSchemaValidation, commonMiddlewares_1.verifyToken, userController_1.categoriesList);
+router.get("/categories-count", commonMiddlewares_1.verifyToken, userController_1.pagination);
 exports.allRoutes = router;
 //# sourceMappingURL=routes.js.map

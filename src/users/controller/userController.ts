@@ -16,11 +16,19 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const initialRoute = async (req: Request, res: Response) => {
-  return res.render("signup", { errorMessage: "" });
+  try {
+    return res.render("signup", { errorMessage: "" });
+  } catch (error) {
+    console.log("error initial route", error);
+  }
 };
 
 const loginPage = async (req: Request, res: Response) => {
-  return res.render("login", { errorMessage: "" });
+  try {
+    return res.render("login", { errorMessage: "" });
+  } catch (error) {
+    console.log("error login route", error);
+  }
 };
 
 const categoryPage = async (req: Request, res: Response) => {
@@ -90,6 +98,7 @@ const loginUser = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
+    console.log("error", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
@@ -160,6 +169,7 @@ const createUser = async (req: Request, res: Response) => {
     //   httpStatusCodes.CREATED
     // );
   } catch (error: any) {
+    console.log("error create-user", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
@@ -170,7 +180,6 @@ const createUser = async (req: Request, res: Response) => {
 
 const verifyEmailCode = async (req: Request, res: Response) => {
   const { code } = req.body;
-  const token = req.body.token;
   const emailStaticCode = 12345678;
   if (emailStaticCode == code) {
     const errorMessage = "";
@@ -258,6 +267,7 @@ const categoriesList = async (req: Request, res: Response) => {
       // );
     }
   } catch (error) {
+    console.log("error categories list", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
@@ -290,6 +300,7 @@ const updateSelectedCategories = async (req: Request, res: Response) => {
       );
     }
   } catch (error) {
+    console.log("error update list", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
@@ -311,6 +322,7 @@ const pagination = async (req: Request, res: Response) => {
       httpStatusCodes.OK
     );
   } catch (error) {
+    console.log("error pagination list", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,

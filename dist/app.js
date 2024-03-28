@@ -38,7 +38,7 @@ app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)());
 // Set EJS as the view engine
-app.set("views", path_1.default.join("views"));
+app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use("/api/v1", routes_1.allRoutes);
 // start the server

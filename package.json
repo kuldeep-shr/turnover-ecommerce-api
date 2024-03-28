@@ -27,7 +27,7 @@
     "postgres": "^3.4.4"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && copyfiles -u 1 views/**/* dist/views && echo 'Views copied successfully'",
     "v-build": "rimraf dist && tsc",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist",
@@ -55,6 +55,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.3",
     "concurrently": "^8.1.0",
+    "copyfiles": "^2.4.1",
     "nodemon": "^2.0.22",
     "pre-commit": "^1.2.2",
     "rimraf": "^5.0.5",

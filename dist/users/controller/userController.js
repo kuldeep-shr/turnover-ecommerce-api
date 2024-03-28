@@ -34,23 +34,29 @@ const commonMiddlewares_1 = require("../../middleware/commonMiddlewares");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const initialRoute = async (req, res) => {
-    return res.render("signup", { errorMessage: "" });
+    try {
+        return res.render("signup", { errorMessage: "" });
+    }
+    catch (error) {
+        console.log("error initial route", error);
+    }
 };
 exports.initialRoute = initialRoute;
 const loginPage = async (req, res) => {
-    console.log("IN login page");
-    return res.render("login", { errorMessage: "" });
+    try {
+        return res.render("login", { errorMessage: "" });
+    }
+    catch (error) {
+        console.log("error login route", error);
+    }
 };
 exports.loginPage = loginPage;
 const categoryPage = async (req, res) => {
     const token = decodeURIComponent(req.query.token);
-    console.log("IN categoryPage page", req.body, "z-token", token, "typeof", typeof token);
     if (["", undefined, null, 0, "undefined"].includes(token)) {
-        console.log("IFF");
         return res.redirect("/api/v1");
     }
     else {
-        console.log("ELSE");
         const categoriesListData = await (0, User_1.categoriesListModel)({
             user_id: 1,
             page: 0,
@@ -70,7 +76,6 @@ const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await (0, User_1.findUserModel)({ email: email });
-        console.log("user-details", user, "req.body", req.body);
         if (user.data.length == 0) {
             return res.render("login", {
                 errorMessage: "user is not registered with us",
@@ -122,7 +127,6 @@ const loginUser = async (req, res) => {
 exports.loginUser = loginUser;
 const createUser = async (req, res) => {
     try {
-        console.log("in singup controller");
         const { name, email, password } = req.body;
         const user = await (0, User_1.findUserModel)({ email: email });
         if (user.data.length > 0) {
@@ -177,14 +181,13 @@ const createUser = async (req, res) => {
         // );
     }
     catch (error) {
-        console.log("erzz", error);
+        console.log("error create-user", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };
 exports.createUser = createUser;
 const verifyEmailCode = async (req, res) => {
     const { code } = req.body;
-    const token = req.body.token;
     const emailStaticCode = 12345678;
     if (emailStaticCode == code) {
         const errorMessage = "";
@@ -235,7 +238,6 @@ const verifyEmailCode = async (req, res) => {
 exports.verifyEmailCode = verifyEmailCode;
 const categoriesList = async (req, res) => {
     try {
-        console.log("REQ big Body", req.body);
         const page = req.body.page || 1;
         const pageSize = req.body.pageSize || 6;
         const user_id = req.body.user.id;
@@ -263,7 +265,7 @@ const categoriesList = async (req, res) => {
         }
     }
     catch (error) {
-        console.log("error", error);
+        console.log("error categories list", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };
@@ -284,6 +286,7 @@ const updateSelectedCategories = async (req, res) => {
         }
     }
     catch (error) {
+        console.log("error update list", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };
@@ -297,6 +300,7 @@ const pagination = async (req, res) => {
         return apiResponse_1.default.result(res, "categories count", [returnData], http_status_codes_1.default.OK);
     }
     catch (error) {
+        console.log("error pagination list", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };

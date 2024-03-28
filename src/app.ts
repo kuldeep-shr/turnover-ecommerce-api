@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 // Set EJS as the view engine
-app.set("views", path.join("views"));
+app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use("/api/v1", allRoutes);
 

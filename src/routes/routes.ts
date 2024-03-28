@@ -18,13 +18,17 @@ import {
   initialRoute,
   createUser,
   verifyEmailCode,
+  loginPage,
   loginUser,
   updateSelectedCategories,
   categoriesList,
   pagination,
+  categoryPage,
 } from "../users/controller/userController";
 
 router.get("/", initialRoute);
+router.get("/signin", loginPage);
+router.get("/category", categoryPage);
 
 router.post("/signup", registerSchemaValidation, createUser);
 router.post("/signin", loginSchemaValidation, loginUser);

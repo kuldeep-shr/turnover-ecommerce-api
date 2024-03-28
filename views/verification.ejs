@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Your Email</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .container {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+      }
+      h2,
+      h3 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+      input[type="text"] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      input[type="submit"] {
+        width: 100%;
+        background-color: #4caf50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+      input[type="submit"]:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      input[type="submit"]:disabled:hover {
+        background-color: #cccccc;
+      }
+      .error-message {
+        color: red;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+    </style>
+</head>
+<body>
+  <% const mainn = "/mainn"; %>
+    <div class="container">
+        <h2>Verify your email</h2>
+        <div class="error-container">
+            <% if (errorMessage) { %>
+                <p class="error-message"><%= errorMessage %></p>
+            <% } %>
+        </div>
+        <h3>Enter the 8 digit code you have received on <%= email %></h3>
+        <form id="verifyForm">
+            <input
+                type="text"
+                id="verificationCode"
+                name="code"
+                placeholder="Enter verification code"
+                required
+                pattern="[0-9]{8}"
+            />
+            <input type="submit" value="Verify" id="verifyButton" disabled />
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("verificationCode").addEventListener("input", function() {
+                const codeInput = this.value.trim();
+                const verifyButton = document.getElementById("verifyButton");
+                verifyButton.disabled = codeInput.length !== 8; // Enable button only if code is 8 digits
+            });
+
+            document.getElementById("verifyForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                const formObject = {};
+                formData.forEach(function(value, key){
+                    formObject[key] = value;
+                });
+                const verifyButton = document.getElementById("verifyButton");
+                verifyButton.disabled = true; // Disable button during API call
+                fetch("http://localhost:8001/api/v1/verify-email", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer <%= token %>"
+                    },
+                    body: JSON.stringify(formObject)
+                })
+                .then(async(response) => {
+                    if (!response.ok) {
+                      const extractBody=await response.json()
+                        throw new Error(extractBody.message);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Email verified successfully");
+                    window.location.href = `http://127.0.0.1:8001/api/v1/category?token=${encodeURIComponent('<%= token %>')}`
+                })
+                .catch(error => {
+                    verifyButton.disabled = false;
+                    const errorContainer = document.querySelector(".error-container");
+                    if (errorContainer) {
+                        errorContainer.innerHTML = `<p class="error-message">${error.message}</p>`;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

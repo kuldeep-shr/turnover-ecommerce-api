@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Please Mark Interest</title>
+    <style>
+        .logout-btn {
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            background-color: #ff6666;
+        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        min-height: calc(100dvh - 80px);
+      }
+      h2 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 10px;
+      }
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      /* .pagination a {
+        color: #007bff;
+        text-decoration: none;
+        padding: 5px 10px;
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        margin: 0 5px;
+      } */
+      .pagination a.active {
+        background-color: #000;
+        color: #fff;
+      }
+      .pagination a:hover {
+        background-color: #f0f0f0;
+      }
+      .wrapper {
+        border: 1px solid #c0c0c0;
+        padding: 16px 32px;
+        margin: 0 auto;
+        border-radius: 8px;
+        width: max-content;
+
+        text-align: center;
+        h2 {
+          font-weight: 500;
+          font-size: 32px;
+        }
+        p {
+          font-weight: normal;
+          font-size: 16px;
+          color: #3b3b3b;
+        }
+      }
+      label {
+            display: flex;
+            align-items: center;
+        }
+        label input[type="checkbox"] {
+            margin-left: 10px;
+        }
+
+      .listContainer {
+        margin-top: 16px;
+        text-align: left;
+
+        h6 {
+          font-weight: 500;
+          font-size: 16px;
+          margin-bottom: 16px;
+        }
+        ul {
+          padding: 0;
+          margin: 0;
+
+          li {
+            padding: 8px 0;
+            margin: 0;
+            font-size: 16px;
+          }
+        }
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .pagination .gap {
+            margin: 0 10px;
+        }
+        .pagination #prevPageBtn {
+            margin-right: 20px;
+        }
+        .pagination #nextPageBtn {
+            margin-left: 20px;
+        }
+        .pagination button:hover {
+            background-color: #f0f0f0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="wrapper">
+        <h2>Please mark your interests!</h2>
+        <p>We will keep you notified</p>
+        <div class="listContainer">
+          <h6>My saved interests!</h6>
+          <form id="categoryForm">
+          <ul>
+            <% categories.forEach(category => { %>
+              <li>
+                <input
+                type="checkbox"
+                name="category"
+                value="<%= category.category_id %>"
+                
+                <% if (category.is_selected) { %>
+                  checked
+                  <% } %>
+                  onchange="updateCategory(this)"
+                  >
+                  <label>
+                    <%= category.category_name %>
+                  </label>
+                </li>
+            <% }); %>
+          </ul>
+          </form>
+        <div class="pagination">
+            <button id="prevPageBtn">Previous</button>
+            <span class="gap"></span>
+            <span class="current-page">Page <%= currentPage %> of <%= totalPages %></span>
+            <span class="gap"></span>
+            <button id="nextPageBtn">Next</button>
+        </div>
+         <button id="logoutBtn">Logout</button>
+        </div>
+      </div>
+    </div>
+<script>
+          function updateCategory(checkbox) {
+            const categoryId = checkbox.value;
+            const isChecked = checkbox.checked;
+
+            // Construct the payload
+            let payload=[]
+             payload.push({
+                category_id: categoryId,
+                is_selected: isChecked
+            });
+
+            // Make the API call
+            fetch('http://localhost:8001/api/v1/update-categories', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer <%= token %>`
+
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update category');
+                }
+                console.log('Category updated successfully');
+            })
+            .catch(error => {
+                console.error('Error updating category:', error);
+            });
+        }
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+       document.getElementById('logoutBtn').addEventListener('click', function() {
+                // Redirect to main page
+                window.location.href = "http://localhost:8001/api/v1/signin"; // Replace "/main-page" with your main page URL
+      });
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const currentPageElement = document.querySelector('.current-page');
+
+        let currentPage = 1;
+        let totalPages = `<%= totalPages %>`;
+        let jwtToken = '<%= token %>';
+
+        function clearCategories() {
+            const categoryForm = document.getElementById('categoryForm');
+            categoryForm.innerHTML = ''; // Clear existing content
+        }
+
+        function fetchCategories(page) {
+            const raw = JSON.stringify({
+                "page": currentPage,
+                "pageSize": 10,
+            });
+
+            const requestOptions = {
+                method: "POST",
+                headers:{
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${jwtToken}`
+                },
+                body: raw,
+                redirect: "follow"
+            };
+
+            fetch("https://turnover-ecommerce-api.vercel.app/api/v1/categories", requestOptions)
+                .then((response) =>  response.json())
+                .then((result) =>{ 
+                    clearCategories();
+                    const categoryForm = document.getElementById('categoryForm');
+
+                    // Populate checkboxes for each category
+                    result.data.forEach(category => {
+                        const label = document.createElement('label');
+                        label.innerHTML = `
+                            <input
+                                type="checkbox"
+                                name="category"
+                                value="${category.category_id}"
+                                ${category.is_selected ? 'checked' : ''}
+                                onchange="updateCategory(this)"
+                            >
+                            <ul>
+                                <li>${category.category_name}</li>
+                            </ul>
+                        `;
+                        categoryForm.appendChild(label);
+                    });
+                })
+                .catch((error) => console.error(error));
+        }
+
+        // Event listener for previous page button
+        prevPageBtn.addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                currentPageElement.textContent = `Page ${currentPage} of ${totalPages}`;
+                fetchCategories(currentPage);
+            }
+        });
+
+        // Event listener for next page button
+        nextPageBtn.addEventListener('click', function() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                currentPageElement.textContent = `Page ${currentPage} of ${totalPages}`;
+                fetchCategories(currentPage);
+            }
+        });
+
+        // Initial fetch on page load
+        fetchCategories(currentPage);
+    });
+</script>
+
+  </body>
+</html>

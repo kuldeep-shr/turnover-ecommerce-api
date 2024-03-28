@@ -81,8 +81,8 @@ const updateCategoriesSchemaValidation = (req, res, next) => {
     const data = req.body;
     const { error } = updateCategoriesSchema.validate(data);
     if (error) {
-        apiResponse_1.default.error(res, http_status_codes_1.default.UNPROCESSABLE_ENTITY, error.message);
-        return null;
+        // apiResponse.error(res, httpStatusCodes.UNPROCESSABLE_ENTITY, error.message);
+        return res.render("login", { errorMessage: error.message });
     }
     next();
 };

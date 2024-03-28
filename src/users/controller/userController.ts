@@ -16,23 +16,41 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const initialRoute = async (req: Request, res: Response) => {
-  return apiResponse.result(
-    res,
-    "SIMPLE E-COMMERCE API",
-    [],
-    httpStatusCodes.OK
-  );
+  return res.render("signup", { errorMessage: "" });
 };
+
+const loginPage = async (req: Request, res: Response) => {
+  return res.render("login", { errorMessage: "" });
+};
+
+const categoryPage = async (req: Request, res: Response) => {
+  const token = decodeURIComponent(req.query.token as string);
+  if (["", undefined, null, 0, "undefined"].includes(token)) {
+    return res.redirect("/api/v1");
+  } else {
+    const categoriesListData: any = await categoriesListModel({
+      user_id: 1,
+      page: 0,
+      pageSize: 6,
+    });
+    return res.render("category", {
+      errorMessage: "",
+      categories: categoriesListData.data,
+      currentPage: 1,
+      totalPages: 6,
+      token: token,
+    });
+  }
+};
+
 const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const user: any = await findUserModel({ email: email });
     if (user.data.length == 0) {
-      return apiResponse.error(
-        res,
-        httpStatusCodes.BAD_REQUEST,
-        "user is not registered with us"
-      );
+      return res.render("login", {
+        errorMessage: "user is not registered with us",
+      });
     }
     const isPasswordMatchOrNot: boolean = await verifyPassword({
       id: user.data[0].id,
@@ -51,23 +69,25 @@ const loginUser = async (req: Request, res: Response) => {
         secretKey: process.env.SECRET_KEY,
       });
 
-      const sendData: any = {
+      const categoriesList: any = await categoriesListModel({
+        user_id: user.data[0].id,
+        page: 0,
+        pageSize: 10,
+      });
+      return res.render("category", {
+        errorMessage: "",
         email: email,
+        categories: categoriesList.data,
+        currentPage: 1,
+        totalPages: 100,
         token: generatingJWTToken,
-      };
-      return apiResponse.result(
-        res,
-        "user login successfully",
-        [sendData],
-        httpStatusCodes.OK
-      );
+      });
     } else {
-      return apiResponse.result(
-        res,
-        "invalid credentials",
-        [],
-        httpStatusCodes.BAD_REQUEST
-      );
+      return res.render("login", {
+        errorMessage: "invalid credentials,please check your password or email",
+        email: "",
+        token: "",
+      });
     }
   } catch (error) {
     return apiResponse.error(
@@ -80,14 +100,16 @@ const loginUser = async (req: Request, res: Response) => {
 
 const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, address } = req.body;
+    const { name, email, password } = req.body;
     const user: any = await findUserModel({ email: email });
     if (user.data.length > 0) {
-      return apiResponse.error(
-        res,
-        httpStatusCodes.BAD_REQUEST,
-        "user already exists"
-      );
+      // return apiResponse.error(
+      //   res,
+      //   httpStatusCodes.BAD_REQUEST,
+      //   "user already exists"
+      // );
+      const errorMessage = "user already exists";
+      return res.render("signup", { errorMessage });
     }
     const addUserData: any = await addUserModel({
       name: name,
@@ -109,12 +131,34 @@ const createUser = async (req: Request, res: Response) => {
       email: email,
       token: generatingJWTToken,
     };
-    return apiResponse.result(
-      res,
-      "user created successfully",
-      [sendData],
-      httpStatusCodes.CREATED
-    );
+    const obscureEmail = (email: string) => {
+      // Split the email address into two parts: local part and domain part
+      const [localPart, domainPart] = email.split("@");
+
+      // Take the first two characters of the local part
+      const firstTwoCharacters = localPart.slice(0, 2);
+
+      // Replace all characters in the local part except the first two characters with asterisks
+      const obscuredLocalPart =
+        firstTwoCharacters + "*".repeat(localPart.length - 2);
+
+      // Return the partially obscured email address
+      return `${obscuredLocalPart}@${domainPart}`;
+    };
+
+    const obscuredEmail = obscureEmail(email);
+
+    res.render("verification", {
+      token: generatingJWTToken,
+      email: obscuredEmail,
+      errorMessage: "",
+    });
+    // return apiResponse.result(
+    //   res,
+    //   "user created successfully",
+    //   [sendData],
+    //   httpStatusCodes.CREATED
+    // );
   } catch (error: any) {
     return apiResponse.error(
       res,
@@ -126,19 +170,55 @@ const createUser = async (req: Request, res: Response) => {
 
 const verifyEmailCode = async (req: Request, res: Response) => {
   const { code } = req.body;
+  const token = req.body.token;
   const emailStaticCode = 12345678;
   if (emailStaticCode == code) {
-    return apiResponse.result(
-      res,
-      "user email verification has been done successfully",
-      [{ isEmailVerify: true }],
-      httpStatusCodes.OK
-    );
+    const errorMessage = "";
+    // return res.render("main", {
+    //   errorMessage: errorMessage,
+    //   categories: [
+    //     {
+    //       category_id: 1,
+    //       catgeory_name: "abc",
+    //       is_selected: false,
+    //     },
+    //     {
+    //       category_id: 2,
+    //       catgeory_name: "efd",
+    //       is_selected: false,
+    //     },
+    //     {
+    //       category_id: 3,
+    //       is_selected: true,
+    //       catgeory_name: "ggg",
+    //       user_id: 1,
+    //       user_name: "Dummy",
+    //     },
+    //     {
+    //       category_id: 4,
+    //       is_selected: true,
+    //       catgeory_name: "hhh",
+    //       user_id: 1,
+    //       user_name: "Dummy",
+    //     },
+    //   ],
+    //   token: token,
+    //   pageSize: 100,
+    //   email: "",
+    // });
+
+    return apiResponse.result(res, "correct opt", [], httpStatusCodes.OK);
   } else {
+    const errorMessage = "invalid email verification code";
+    // return res.render("verification", {
+    //   errorMessage: errorMessage,
+    //   token: token,
+    //   email: req.body.user.email,
+    // });
     return apiResponse.result(
       res,
       "invalid email verification code",
-      [{ isEmailVerify: false }],
+      [],
       httpStatusCodes.BAD_REQUEST
     );
   }
@@ -164,12 +244,18 @@ const categoriesList = async (req: Request, res: Response) => {
         httpStatusCodes.OK
       );
     } else {
-      return apiResponse.result(
-        res,
-        "no categories list found",
-        [],
-        httpStatusCodes.BAD_REQUEST
-      );
+      return res.render("category", {
+        errorMessage: "",
+        categories: categoriesList,
+        token: "",
+      });
+
+      // return apiResponse.result(
+      //   res,
+      //   "no categories list found",
+      //   [],
+      //   httpStatusCodes.BAD_REQUEST
+      // );
     }
   } catch (error) {
     return apiResponse.error(
@@ -241,4 +327,6 @@ export {
   updateSelectedCategories,
   categoriesList,
   pagination,
+  loginPage,
+  categoryPage,
 };

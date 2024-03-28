@@ -103,7 +103,7 @@
                 });
                 const verifyButton = document.getElementById("verifyButton");
                 verifyButton.disabled = true; // Disable button during API call
-                fetch("https://turnover-ecommerce-88n2y4i2k-kuldeeps-projects-cda71e3d.vercel.app/api/v1/verify-email", {
+                fetch("https://turnover-ecommerce-api.vercel.app/api/v1/verify-email", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -120,7 +120,7 @@
                 })
                 .then(data => {
                     console.log("Email verified successfully");
-                    window.location.href = `https://turnover-ecommerce-88n2y4i2k-kuldeeps-projects-cda71e3d.vercel.app/api/v1/category?token=${encodeURIComponent('<%= token %>')}`
+                    window.location.href = `https://turnover-ecommerce-api.vercel.app/api/v1/category?token=${encodeURIComponent('<%= token %>')}`
                 })
                 .catch(error => {
                     verifyButton.disabled = false;

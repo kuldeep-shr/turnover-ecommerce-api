@@ -188,7 +188,7 @@
             });
 
             // Make the API call
-            fetch('https://turnover-ecommerce-88n2y4i2k-kuldeeps-projects-cda71e3d.vercel.app/api/v1/update-categories', {
+            fetch('https://turnover-ecommerce-api.vercel.app/api/v1/update-categories', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -212,7 +212,7 @@
 
        document.getElementById('logoutBtn').addEventListener('click', function() {
                 // Redirect to main page
-                window.location.href = "https://turnover-ecommerce-88n2y4i2k-kuldeeps-projects-cda71e3d.vercel.app/api/v1/signin"; // Replace "/main-page" with your main page URL
+                window.location.href = "https://turnover-ecommerce-api.vercel.app/api/v1/signin"; // Replace "/main-page" with your main page URL
       });
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
@@ -243,7 +243,7 @@
                 redirect: "follow"
             };
 
-            fetch("https://turnover-ecommerce-88n2y4i2k-kuldeeps-projects-cda71e3d.vercel.app/api/v1/categories", requestOptions)
+            fetch("https://turnover-ecommerce-api.vercel.app/api/v1/categories", requestOptions)
                 .then((response) =>  response.json())
                 .then((result) =>{ 
                     clearCategories();

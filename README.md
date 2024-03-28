@@ -10,9 +10,8 @@ Welcome to the Simple E-Commerce API! This API provides endpoints to manage groc
    ```
 2. run, &nbsp; `npm i` for Install dependencies
 3. run,&nbsp; `npm run sample-data` to create the table with some sample data
-4. run,&nbsp; `npm run dev ` for development environment
-5. run,&nbsp; `npm run build` for build the typescript
-6. run,&nbsp; `npm start` for starting the api endpoints
+4. run,&nbsp; `npm run build` for build the typescript
+5. run,&nbsp; `npm start` for starting the api endpoints
    <br />
 
 ---

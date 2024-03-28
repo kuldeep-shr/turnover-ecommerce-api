@@ -15,7 +15,7 @@ import {
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const initialRoute = async (req: Request, res: Response) => {
+const signupPage = async (req: Request, res: Response) => {
   try {
     return res.render("signup", { errorMessage: "" });
   } catch (error) {
@@ -112,11 +112,6 @@ const createUser = async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
     const user: any = await findUserModel({ email: email });
     if (user.data.length > 0) {
-      // return apiResponse.error(
-      //   res,
-      //   httpStatusCodes.BAD_REQUEST,
-      //   "user already exists"
-      // );
       const errorMessage = "user already exists";
       return res.render("signup", { errorMessage });
     }
@@ -134,24 +129,12 @@ const createUser = async (req: Request, res: Response) => {
       },
       secretKey: process.env.SECRET_KEY,
     });
-    const sendData: any = {
-      name: name,
-      password: password,
-      email: email,
-      token: generatingJWTToken,
-    };
     const obscureEmail = (email: string) => {
       // Split the email address into two parts: local part and domain part
       const [localPart, domainPart] = email.split("@");
-
-      // Take the first two characters of the local part
       const firstTwoCharacters = localPart.slice(0, 2);
-
-      // Replace all characters in the local part except the first two characters with asterisks
       const obscuredLocalPart =
         firstTwoCharacters + "*".repeat(localPart.length - 2);
-
-      // Return the partially obscured email address
       return `${obscuredLocalPart}@${domainPart}`;
     };
 
@@ -162,14 +145,7 @@ const createUser = async (req: Request, res: Response) => {
       email: obscuredEmail,
       errorMessage: "",
     });
-    // return apiResponse.result(
-    //   res,
-    //   "user created successfully",
-    //   [sendData],
-    //   httpStatusCodes.CREATED
-    // );
   } catch (error: any) {
-    console.log("error create-user", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
@@ -182,48 +158,8 @@ const verifyEmailCode = async (req: Request, res: Response) => {
   const { code } = req.body;
   const emailStaticCode = 12345678;
   if (emailStaticCode == code) {
-    const errorMessage = "";
-    // return res.render("main", {
-    //   errorMessage: errorMessage,
-    //   categories: [
-    //     {
-    //       category_id: 1,
-    //       catgeory_name: "abc",
-    //       is_selected: false,
-    //     },
-    //     {
-    //       category_id: 2,
-    //       catgeory_name: "efd",
-    //       is_selected: false,
-    //     },
-    //     {
-    //       category_id: 3,
-    //       is_selected: true,
-    //       catgeory_name: "ggg",
-    //       user_id: 1,
-    //       user_name: "Dummy",
-    //     },
-    //     {
-    //       category_id: 4,
-    //       is_selected: true,
-    //       catgeory_name: "hhh",
-    //       user_id: 1,
-    //       user_name: "Dummy",
-    //     },
-    //   ],
-    //   token: token,
-    //   pageSize: 100,
-    //   email: "",
-    // });
-
     return apiResponse.result(res, "correct opt", [], httpStatusCodes.OK);
   } else {
-    const errorMessage = "invalid email verification code";
-    // return res.render("verification", {
-    //   errorMessage: errorMessage,
-    //   token: token,
-    //   email: req.body.user.email,
-    // });
     return apiResponse.result(
       res,
       "invalid email verification code",
@@ -258,16 +194,8 @@ const categoriesList = async (req: Request, res: Response) => {
         categories: categoriesList,
         token: "",
       });
-
-      // return apiResponse.result(
-      //   res,
-      //   "no categories list found",
-      //   [],
-      //   httpStatusCodes.BAD_REQUEST
-      // );
     }
   } catch (error) {
-    console.log("error categories list", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
@@ -300,7 +228,6 @@ const updateSelectedCategories = async (req: Request, res: Response) => {
       );
     }
   } catch (error) {
-    console.log("error update list", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
@@ -322,7 +249,6 @@ const pagination = async (req: Request, res: Response) => {
       httpStatusCodes.OK
     );
   } catch (error) {
-    console.log("error pagination list", error);
     return apiResponse.error(
       res,
       httpStatusCodes.BAD_REQUEST,
@@ -332,7 +258,7 @@ const pagination = async (req: Request, res: Response) => {
 };
 
 export {
-  initialRoute,
+  signupPage,
   createUser,
   loginUser,
   verifyEmailCode,

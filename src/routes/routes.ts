@@ -15,7 +15,7 @@ import {
 
 //controllers
 import {
-  initialRoute,
+  signupPage,
   createUser,
   verifyEmailCode,
   loginPage,
@@ -26,7 +26,7 @@ import {
   categoryPage,
 } from "../users/controller/userController";
 
-router.get("/", initialRoute);
+router.get("/", signupPage);
 router.get("/signin", loginPage);
 router.get("/category", categoryPage);
 

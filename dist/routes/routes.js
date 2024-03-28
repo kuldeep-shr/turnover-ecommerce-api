@@ -12,7 +12,7 @@ const commonMiddlewares_1 = require("../middleware/commonMiddlewares");
 const User_1 = require("../validation/User");
 //controllers
 const userController_1 = require("../users/controller/userController");
-router.get("/", userController_1.initialRoute);
+router.get("/", userController_1.signupPage);
 router.get("/signin", userController_1.loginPage);
 router.get("/category", userController_1.categoryPage);
 router.post("/signup", User_1.registerSchemaValidation, userController_1.createUser);

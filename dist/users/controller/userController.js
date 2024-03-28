@@ -26,14 +26,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.categoryPage = exports.loginPage = exports.pagination = exports.categoriesList = exports.updateSelectedCategories = exports.verifyEmailCode = exports.loginUser = exports.createUser = exports.initialRoute = void 0;
+exports.categoryPage = exports.loginPage = exports.pagination = exports.categoriesList = exports.updateSelectedCategories = exports.verifyEmailCode = exports.loginUser = exports.createUser = exports.signupPage = void 0;
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const apiResponse_1 = __importDefault(require("../../utils/apiResponse"));
 const User_1 = require("../model/User");
 const commonMiddlewares_1 = require("../../middleware/commonMiddlewares");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const initialRoute = async (req, res) => {
+const signupPage = async (req, res) => {
     try {
         return res.render("signup", { errorMessage: "" });
     }
@@ -41,7 +41,7 @@ const initialRoute = async (req, res) => {
         console.log("error initial route", error);
     }
 };
-exports.initialRoute = initialRoute;
+exports.signupPage = signupPage;
 const loginPage = async (req, res) => {
     try {
         return res.render("login", { errorMessage: "" });
@@ -130,11 +130,6 @@ const createUser = async (req, res) => {
         const { name, email, password } = req.body;
         const user = await (0, User_1.findUserModel)({ email: email });
         if (user.data.length > 0) {
-            // return apiResponse.error(
-            //   res,
-            //   httpStatusCodes.BAD_REQUEST,
-            //   "user already exists"
-            // );
             const errorMessage = "user already exists";
             return res.render("signup", { errorMessage });
         }
@@ -151,20 +146,11 @@ const createUser = async (req, res) => {
             },
             secretKey: process.env.SECRET_KEY,
         });
-        const sendData = {
-            name: name,
-            password: password,
-            email: email,
-            token: generatingJWTToken,
-        };
         const obscureEmail = (email) => {
             // Split the email address into two parts: local part and domain part
             const [localPart, domainPart] = email.split("@");
-            // Take the first two characters of the local part
             const firstTwoCharacters = localPart.slice(0, 2);
-            // Replace all characters in the local part except the first two characters with asterisks
             const obscuredLocalPart = firstTwoCharacters + "*".repeat(localPart.length - 2);
-            // Return the partially obscured email address
             return `${obscuredLocalPart}@${domainPart}`;
         };
         const obscuredEmail = obscureEmail(email);
@@ -173,15 +159,8 @@ const createUser = async (req, res) => {
             email: obscuredEmail,
             errorMessage: "",
         });
-        // return apiResponse.result(
-        //   res,
-        //   "user created successfully",
-        //   [sendData],
-        //   httpStatusCodes.CREATED
-        // );
     }
     catch (error) {
-        console.log("error create-user", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };
@@ -190,48 +169,9 @@ const verifyEmailCode = async (req, res) => {
     const { code } = req.body;
     const emailStaticCode = 12345678;
     if (emailStaticCode == code) {
-        const errorMessage = "";
-        // return res.render("main", {
-        //   errorMessage: errorMessage,
-        //   categories: [
-        //     {
-        //       category_id: 1,
-        //       catgeory_name: "abc",
-        //       is_selected: false,
-        //     },
-        //     {
-        //       category_id: 2,
-        //       catgeory_name: "efd",
-        //       is_selected: false,
-        //     },
-        //     {
-        //       category_id: 3,
-        //       is_selected: true,
-        //       catgeory_name: "ggg",
-        //       user_id: 1,
-        //       user_name: "Dummy",
-        //     },
-        //     {
-        //       category_id: 4,
-        //       is_selected: true,
-        //       catgeory_name: "hhh",
-        //       user_id: 1,
-        //       user_name: "Dummy",
-        //     },
-        //   ],
-        //   token: token,
-        //   pageSize: 100,
-        //   email: "",
-        // });
         return apiResponse_1.default.result(res, "correct opt", [], http_status_codes_1.default.OK);
     }
     else {
-        const errorMessage = "invalid email verification code";
-        // return res.render("verification", {
-        //   errorMessage: errorMessage,
-        //   token: token,
-        //   email: req.body.user.email,
-        // });
         return apiResponse_1.default.result(res, "invalid email verification code", [], http_status_codes_1.default.BAD_REQUEST);
     }
 };
@@ -256,16 +196,9 @@ const categoriesList = async (req, res) => {
                 categories: categoriesList,
                 token: "",
             });
-            // return apiResponse.result(
-            //   res,
-            //   "no categories list found",
-            //   [],
-            //   httpStatusCodes.BAD_REQUEST
-            // );
         }
     }
     catch (error) {
-        console.log("error categories list", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };
@@ -286,7 +219,6 @@ const updateSelectedCategories = async (req, res) => {
         }
     }
     catch (error) {
-        console.log("error update list", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };
@@ -300,7 +232,6 @@ const pagination = async (req, res) => {
         return apiResponse_1.default.result(res, "categories count", [returnData], http_status_codes_1.default.OK);
     }
     catch (error) {
-        console.log("error pagination list", error);
         return apiResponse_1.default.error(res, http_status_codes_1.default.BAD_REQUEST, "internal server issue");
     }
 };

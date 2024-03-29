@@ -6,7 +6,7 @@ Welcome to the Simple E-Commerce API! This API provides endpoints to manage groc
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/kuldeep-shr/qp-assessment.git
+      https://github.com/kuldeep-shr/turnover-ecommerce-api.git
    ```
 2. run, &nbsp; `npm i` for Install dependencies
 3. run,&nbsp; `npm run sample-data` to create the table with some sample data

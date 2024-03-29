@@ -35,9 +35,10 @@ Welcome to the Simple E-Commerce API! This API provides endpoints to manage groc
 
 ---
 
+**NOTE**: &nbsp;use **12345678** for email verification code
 <br >
 
-**NOTE**: &nbsp;use **12345678** for email verification code
+---
 
 ## For API Collection, Coming soon....
 
